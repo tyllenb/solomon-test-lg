@@ -2,13 +2,12 @@
   "name": "relationship-counselor-agent",
   "version": "1.0.0",
   "description": "A marriage counseling agent with three distinct modes using LangGraph JS",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && node dist/index.js",
-    "dev": "tsx src/index.ts",
-    "dev:watch": "tsx --watch src/index.ts",
+    "start": "node src/index.js",
+    "dev": "node src/index.js",
+    "dev:watch": "nodemon src/index.js",
     "example": "node example.js"
   },
   "keywords": [

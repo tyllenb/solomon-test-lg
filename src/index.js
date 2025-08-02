@@ -11,8 +11,7 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { initChatModel } from "langchain/chat_models/universal";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { BaseMessageLike, HumanMessage } from "@langchain/core/messages";
-import { RunnableConfig } from "@langchain/core/runnables";
+import { HumanMessage } from "@langchain/core/messages";
 import { MessagesAnnotation } from "@langchain/langgraph";
 
 
@@ -217,10 +216,7 @@ You're the wise friend who sees the bigger picture and gives solid advice to hel
 
     const systemMessage = systemMessages[mode] || "You are a helpful assistant.";
     
-    return (
-      state: typeof MessagesAnnotation.State,
-      config: RunnableConfig
-    ): BaseMessageLike[] => {
+    return (state, config) => {
       console.log('\n🎯 PROMPT FUNCTION CALLED!');
       
       const userId = config.configurable?.userId;
@@ -232,7 +228,7 @@ Session Info: You are in ${mode} mode for user ${userId} in session ${sessionId}
       
       console.log('✅ Prompt ready with', (state.messages?.length || 0) + 1, 'messages');
       
-      // Use the correct format as shown in LangGraph docs
+      // Use plain message objects for createReactAgent
       return [{ role: "system", content: dynamicSystemMsg }, ...state.messages];
     };
   }
