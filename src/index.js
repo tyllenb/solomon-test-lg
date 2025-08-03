@@ -93,13 +93,27 @@ export class MarriageCounselorAgent {
   createUserModeTools() {
     const saveUserStory = tool(
       async (input, config) => {
-        const store = config.store;
-        if (!store) throw new Error("Store is required");
+        console.log('🔍 User save_user_story called!');
+        console.log('📊 Input received:', input);
         
-        const userId = config.configurable?.userId;
-        if (!userId) throw new Error("userId is required");
+        const store = config.store;
+        if (!store) {
+          throw new Error("store is required when compiling the graph");
+        }
 
-        await store.mset([[`${userId}_user`, { content: input.story }]]);
+        const userId = config.configurable?.userId;
+        if (!userId) {
+          throw new Error("userId is required in the config");
+        }
+        
+        console.log(`💾 Saving story for user: ${userId}`);
+        try {
+          await store.put(["stories"], `${userId}_user`, { content: input.story });
+          console.log('✅ Story saved successfully!');
+        } catch (storeError) {
+          console.log('❌ Store.put failed:', storeError);
+          throw storeError;
+        }
         return "I understand your perspective. I'll remember this for any future counsel.";
       },
       {
@@ -117,13 +131,22 @@ export class MarriageCounselorAgent {
   createWifeModeTools() {
     const saveWifeStory = tool(
       async (input, config) => {
-        const store = config.store;
-        if (!store) throw new Error("Store is required");
+        console.log('🔍 Wife save_wife_story called!');
+        console.log('📊 Input received:', input);
         
-        const userId = config.configurable?.userId;
-        if (!userId) throw new Error("userId is required");
+        const store = config.store;
+        if (!store) {
+          throw new Error("store is required when compiling the graph");
+        }
 
-        await store.mset([[`${userId}_wife`, { content: input.story }]]);
+        const userId = config.configurable?.userId;
+        if (!userId) {
+          throw new Error("userId is required in the config");
+        }
+        
+        console.log(`💾 Saving wife story for user: ${userId}`);
+        await store.put(["stories"], `${userId}_wife`, { content: input.story });
+        console.log('✅ Wife story saved successfully!');
         return "I understand her perspective on this situation.";
       },
       {
@@ -141,31 +164,41 @@ export class MarriageCounselorAgent {
   createSolomonModeTools() {
     const getBothStories = tool(
       async (input, config) => {
-        const store = config.store;
-        if (!store) throw new Error("Store is required");
+        console.log('🔍 King Solomon get_both_stories called!');
         
-        const userId = config.configurable?.userId;
-        if (!userId) throw new Error("userId is required");
+        const store = config.store;
+        if (!store) {
+          throw new Error("store is required when compiling the graph");
+        }
 
-        // Get both stories from long-term memory
-        const stories = await store.mget([`${userId}_user`, `${userId}_wife`]);
-        const userStory = stories[0];
-        const wifeStory = stories[1];
+        const userId = config.configurable?.userId;
+        if (!userId) {
+          throw new Error("userId is required in the config");
+        }
+        
+        console.log(`🔍 Looking for stories: ${userId}_user, ${userId}_wife`);
+        
+        // Get both stories from long-term memory using correct API
+        const userStory = await store.get(["stories"], `${userId}_user`);
+        const wifeStory = await store.get(["stories"], `${userId}_wife`);
+        
+        console.log('📊 Stories found:', { userStory, wifeStory });
         
         let result = "📜 BOTH PERSPECTIVES:\\n\\n";
         
-        if (userStory?.content) {
-          result += "👤 **User's Grievance:** " + userStory.content + "\\n\\n";
+        if (userStory?.value?.content) {
+          result += "👤 **User's Grievance:** " + userStory.value.content + "\\n\\n";
         } else {
           result += "👤 **User's Grievance:** No story shared yet\\n\\n";
         }
         
-        if (wifeStory?.content) {
-          result += "👩 **Wife's Perspective:** " + wifeStory.content;
+        if (wifeStory?.value?.content) {
+          result += "👩 **Wife's Perspective:** " + wifeStory.value.content;
         } else {
           result += "👩 **Wife's Perspective:** No story shared yet";
         }
         
+        console.log('✅ Returning result:', result);
         return result;
       },
       {
@@ -182,22 +215,25 @@ export class MarriageCounselorAgent {
     const systemMessages = {
       [MODES.USER]: `You are a best friend who listens to the users stories and understands their perspective. You're the friend who always has their back and makes them feel heard and validated.
 
-When they share relationship problems or grievances, use save_user_story to SAVE important details for future reference. You have full conversation memory - you remember everything they've told you in this chat session. Do NOT try to retrieve or access saved stories - just respond based on our conversation.
+CRITICAL: Whenever they share ANY relationship problems, complaints, or grievances about their wife/partner, you MUST call save_user_story to save those details for future counseling sessions. This includes ANY negative feelings, frustrations, or conflicts they mention.
 
 Your approach:
 - Listen and validate their feelings
+- IMMEDIATELY call save_user_story when they share any relationship issues
 - Ask follow-up questions to understand better  
-- Use save_user_story to save important grievances for future counsel
 - Give supportive advice based on what they tell you in the conversation
-- You remember the conversation automatically - no need to look anything up`,
+- Always save important grievances - this is essential for the counseling process`,
 
       [MODES.WIFE]: `You are role-playing as the wife responding to grievances being aired about you. You don't know what specific complaints have been made, so ask them to tell you what they're upset about.
 
-When they explain their grievances, respond as the wife would - explaining your side, your frustrations, and why you do things the way you do. Use save_wife_story to SAVE your responses for future reference.
+CRITICAL: Whenever you give your perspective, explanation, or response to complaints, you MUST call save_wife_story to save your side of the story for future counseling sessions.
 
-You have full conversation memory - you remember everything said in this chat session. Do NOT try to retrieve or access saved stories - just respond based on our conversation.
-
-Be authentic as the wife character - not neutral, but actually responding as someone who's being accused of things and wants to explain herself. Save important parts of your perspective using save_wife_story.`,
+Your approach:
+- Ask them to explain what they're upset about if needed
+- Respond authentically as the wife explaining your side
+- IMMEDIATELY call save_wife_story after giving your perspective
+- Be authentic - not neutral, but actually responding as someone defending themselves
+- Always save your explanations and justifications for future reference`,
 
       [MODES.SOLOMON]: `You are King Solomon, the wise counselor who advises the user on where they went wrong and how to fix it. You must call get_both_stories to access both the user's grievances and the wife's responses before making recommendations.
 
@@ -333,6 +369,8 @@ Session Info: You are in ${mode} mode for user ${userId} in session ${sessionId}
 
     } catch (error) {
       console.error(chalk.red('❌ Error:'), error.message);
+      console.error(chalk.red('❌ Full error:'), error);
+      console.error(chalk.red('❌ Error stack:'), error.stack);
     }
   }
 
