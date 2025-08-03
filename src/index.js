@@ -145,8 +145,13 @@ export class MarriageCounselorAgent {
         }
         
         console.log(`💾 Saving wife story for user: ${userId}`);
-        await store.put(["stories"], `${userId}_wife`, { content: input.story });
-        console.log('✅ Wife story saved successfully!');
+        try {
+          await store.put(["stories"], `${userId}_wife`, { content: input.story });
+          console.log('✅ Wife story saved successfully!');
+        } catch (storeError) {
+          console.log('❌ Store.put failed:', storeError);
+          throw storeError;
+        }
         return "I understand her perspective on this situation.";
       },
       {
@@ -179,10 +184,24 @@ export class MarriageCounselorAgent {
         console.log(`🔍 Looking for stories: ${userId}_user, ${userId}_wife`);
         
         // Get both stories from long-term memory using correct API
-        const userStory = await store.get(["stories"], `${userId}_user`);
-        const wifeStory = await store.get(["stories"], `${userId}_wife`);
+        let userStory, wifeStory;
+        try {
+          userStory = await store.get(["stories"], `${userId}_user`);
+          console.log('📊 User story retrieved:', userStory);
+        } catch (error) {
+          console.log('❌ Failed to get user story:', error);
+          userStory = null;
+        }
         
-        console.log('📊 Stories found:', { userStory, wifeStory });
+        try {
+          wifeStory = await store.get(["stories"], `${userId}_wife`);
+          console.log('📊 Wife story retrieved:', wifeStory);
+        } catch (error) {
+          console.log('❌ Failed to get wife story:', error);
+          wifeStory = null;
+        }
+        
+        console.log('📊 Final stories found:', { userStory, wifeStory });
         
         let result = "📜 BOTH PERSPECTIVES:\\n\\n";
         
