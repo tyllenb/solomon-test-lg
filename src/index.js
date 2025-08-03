@@ -11,7 +11,7 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { initChatModel } from "langchain/chat_models/universal";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { HumanMessage } from "@langchain/core/messages";
+// Message objects will be handled as plain objects for createReactAgent
 import { MessagesAnnotation } from "@langchain/langgraph";
 
 
@@ -320,7 +320,7 @@ Session Info: You are in ${mode} mode for user ${userId} in session ${sessionId}
 
       // Follow the exact LangGraph pattern - system prompt is handled by agent creation
       const response = await this.agents[this.currentMode].invoke(
-        { messages: [new HumanMessage(message)] },
+        { messages: [{ role: "user", content: message }] },
         config
       );
 
