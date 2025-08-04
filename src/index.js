@@ -5,8 +5,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 
 import { v4 as uuidv4 } from 'uuid';
-import { MemorySaver } from "@langchain/langgraph-checkpoint";
-import { InMemoryStore } from "@langchain/core/stores";
+import { MemorySaver, InMemoryStore } from "@langchain/langgraph-checkpoint";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { initChatModel } from "langchain/chat_models/universal";
 import { tool } from "@langchain/core/tools";
