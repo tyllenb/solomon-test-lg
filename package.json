@@ -8,7 +8,9 @@
     "start": "node src/index.js",
     "dev": "node src/index.js",
     "dev:watch": "nodemon src/index.js",
-    "example": "node example.js"
+    "example": "node example.js",
+    "test:deployment": "node test-deployment.js",
+    "deploy": "echo 'Follow the steps in DEPLOYMENT.md to deploy to LangGraph Platform'"
   },
   "keywords": [
     "langgraph",

@@ -180,6 +180,23 @@ The agent is designed to be self-explanatory, but if you encounter issues:
 3. Try restarting the application
 4. Check your internet connection for AI model access
 
+## 🚀 Deployment
+
+This agent is ready for deployment to LangGraph Platform! See [`DEPLOYMENT.md`](DEPLOYMENT.md) for detailed deployment instructions.
+
+### Quick Deployment Summary:
+
+1. Push your code to GitHub
+2. Set up your API keys (OpenAI or Anthropic)
+3. Deploy via LangSmith dashboard
+4. Test with the provided API endpoints
+
+The deployment includes:
+- **API-compatible agent** (`src/agent.js`)
+- **LangGraph configuration** (`langgraph.json`) 
+- **Docker configuration** (`Dockerfile`)
+- **Complete deployment guide** (`DEPLOYMENT.md`)
+
 ## License
 
 MIT License - Feel free to modify and extend for your needs.
@@ -188,4 +205,4 @@ MIT License - Feel free to modify and extend for your needs.
 
 *"The heart of the wise inclines to the right, but the heart of the fool to the left."* - Ecclesiastes 10:2
 
-May this tool help bring wisdom and understanding to your relationships. 🕊️# solomon-test-lg
+May this tool help bring wisdom and understanding to your relationships. 🕊️

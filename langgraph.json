@@ -1,0 +1,10 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "agent": {
+      "path": "src/agent.js",
+      "class_name": "MarriageCounselorAgent"
+    }
+  },
+  "env": ".env"
+}
